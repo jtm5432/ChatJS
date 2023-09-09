@@ -27,6 +27,11 @@ type ModalCallback = (modal: HTMLElement) => void;
  */
 export async function loadModal(modalFileName: string,  afterLoadCallback?: ModalCallback): Promise<void> {
     try {
+        const existingModal = document.getElementById('myModal');
+        if (existingModal) {
+            existingModal.remove();
+        }
+
         // 모달 경로
         const fullPath = `../views/${modalFileName}`;
 
@@ -36,25 +41,35 @@ export async function loadModal(modalFileName: string,  afterLoadCallback?: Moda
         /** @type {string} */
         const modalText = await response.text();
         document.body.insertAdjacentHTML('beforeend', modalText);
+          /** @type {HTMLElement | null} */
+          const span = document.getElementById('closeModalBtn');
+        /** @type {HTMLElement | null} */
         
-        /** @type {HTMLElement | null} */
         const modal = document.getElementById('myModal');
+        let backdrop = document.querySelector('.backdrop') as HTMLDivElement | null;
 
+        if (!backdrop) {
+            backdrop = document.createElement('div');
+            backdrop.classList.add('backdrop');
+            document.body.appendChild(backdrop);
+        }
+
+        document.body.appendChild(backdrop);
      
-        /** @type {HTMLElement | null} */
-        const span = document.getElementById('closeModalBtn');
-        modal.style.display = "block";
-        if ( modal && span) {
-           
-
+      
+       // modal와 backdrop를 표시
+       if (modal) modal.style.display = "block";
+       if (backdrop) backdrop.style.display = "block";
+        
+        if (modal && span) {
             span.onclick = function(): void {
                 modal.style.display = "none";
+                backdrop.style.display = "none"; // Hide the backdrop
             }
 
-            window.onclick = function(event: Event): void {
-                if (event.target === modal) {
-                    modal.style.display = "none";
-                }
+            // Don't close the modal when the backdrop is clicked
+            backdrop.onclick = function(event: Event): void {
+                event.stopPropagation();
             }
         }
         if(afterLoadCallback)afterLoadCallback(modal);
@@ -62,4 +77,49 @@ export async function loadModal(modalFileName: string,  afterLoadCallback?: Moda
         console.error("모달을 불러오는데 실패했습니다.", error);
     }
 }
+/**
+ * 현재 표시 중인 모달을 숨깁니다.
+ * 
+ * 해당 함수는 페이지에 존재하는 모달과 backdrop 요소를 찾아 숨기며, 
+ * 필요한 경우 DOM에서 완전히 제거합니다.
+ * 
+ * @function
+ */
+export function hideModal(): void {
+    /** @type {HTMLElement | null} */
+    const modal = document.getElementById('myModal');
+    /** @type {HTMLElement | null} */
+    const backdrop = document.querySelector('.backdrop') as HTMLElement | null;
+
+    // modal과 backdrop를 숨김
+    if (modal) modal.style.display = "none";
+    if (backdrop) backdrop.style.display = "none";
+
+    
+}
+
+/**
+ * 새로운 window 창이 완전히 로드될 때까지 기다립니다.
+ * 
+ * @param {Window | null} newWindow - 로드를 기다리는 대상 window 객체.
+ * @returns {Promise<void>} window가 완전히 로드될 때 resolve되는 promise.
+ * @throws {Error} 제공된 newWindow가 null인 경우.
+ */
+export function waitForWindowToLoad(newWindow: Window | null): Promise<void> {
+    return new Promise((resolve, reject) => {
+        if (!newWindow) {
+            reject(new Error("newWindow is null"));
+            return;
+        }
+
+        const checkWindowLoaded = setInterval(() => {
+            if (newWindow.document.readyState === 'complete') {
+                clearInterval(checkWindowLoaded);
+                resolve();
+            }
+        }, 100);
+    });
+}
+
+
 

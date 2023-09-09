@@ -1,4 +1,5 @@
-import { createButton,loadModal } from './Utils.ts';
+import { createButton,loadModal,waitForWindowToLoad ,hideModal } from './Utils.ts';
+import {  logWhenLoaded, onloadCallFns ,manageUserList,manageTextareaContent} from './textEditor.ts';
 
 // Define a callback function to be executed when the button is clicked
 function onButtonClick() {
@@ -7,10 +8,18 @@ function onButtonClick() {
             const inputBox = modal.querySelector('#inputBox');
             const actionButton = modal.querySelector('#actionButton');
             if (inputBox && actionButton) {
-                actionButton.onclick = function() {
+                actionButton.onclick = async function() {
                     const inputValue = inputBox.value;        
+                    
+                    //modal.style.display = "none";
+                    //loadModal('textEditorModal.html');
+                    //const openWindow = window.open('../views/textEditorModal.html', '_blank');
                    
-                    modal.style.display = "none";
+                   // const ExcuteFns = [UserList]
+                    //await waitForWindowToLoad(openWindow) 
+                    const openWindow  = document.getElementById("pageContainer");
+                    hideModal();
+                    const UserList = manageUserList(openWindow,"userList",inputValue);
                 };
             }
        
