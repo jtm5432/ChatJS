@@ -1,5 +1,5 @@
 import { createButton,loadModal,waitForWindowToLoad ,hideModal } from './Utils.ts';
-import {  logWhenLoaded, onloadCallFns ,manageUserList,manageTextareaContent} from './textEditor.ts';
+import {  logWhenLoaded, onloadCallFns ,manageUserList,manageEditableContent} from './textEditor.ts';
 
 // Define a callback function to be executed when the button is clicked
 function onButtonClick() {
@@ -12,7 +12,7 @@ function onButtonClick() {
                     const inputValue = inputBox.value;        
                     
                     //modal.style.display = "none";
-                    //loadModal('textEditorModal.html');
+                    //loadModal('textEditorModal.heditortml');
                     //const openWindow = window.open('../views/textEditorModal.html', '_blank');
                    
                    // const ExcuteFns = [UserList]
@@ -20,6 +20,7 @@ function onButtonClick() {
                     const openWindow  = document.getElementById("pageContainer");
                     hideModal();
                     const UserList = manageUserList(openWindow,"userList",inputValue);
+                    manageEditableContent(document.getElementById("editableDiv"),UserList,inputValue);
                 };
             }
        
